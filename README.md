@@ -24,4 +24,14 @@ It personalizes content based on VARK learning styles using Generative AI.
 ```bash
 cd backend
 npm install
-npm start
+node server.js
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm start 
+
+
+
