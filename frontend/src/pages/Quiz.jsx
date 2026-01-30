@@ -7,9 +7,12 @@ export default function Quiz() {
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState([]);
 
-  useEffect(() => {
+ useEffect(() => {
+  API.post("/quiz/generate", { topicId: id }).then(() => {
     API.get(`/quiz/${id}`).then(res => setQuiz(res.data));
-  }, []);
+  });
+}, []);
+
 
   const submit = async () => {
     const res = await API.post("/quiz/submit", {

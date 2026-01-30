@@ -4,11 +4,12 @@ const auth = require("../middleware/authMiddleware");
 const {
   createQuiz,
   getQuiz,
-  submitQuiz
+  submitQuiz,
+  generateQuiz
 } = require("../controllers/quizController");
 
 // Admin
-router.post("/create", auth, createQuiz);
+router.post("/generate", auth, generateQuiz);
 
 // Learner
 router.get("/:topicId", auth, getQuiz);

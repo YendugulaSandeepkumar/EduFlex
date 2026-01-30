@@ -2,18 +2,41 @@ const Quiz = require("../models/Quiz");
 const Attempt = require("../models/Attempt");
 const User = require("../models/User");
 const { updateProgress } = require("../models/Progress");
+const Topic = require("../models/Topic");
+const { generateQuizQuestions } = require("../services/aiService");
 
 // ADMIN: Create quiz
-exports.createQuiz = async (req, res) => {
-  const { topicId, questions } = req.body;
+// GENERATE QUIZ USING GEMINI
+exports.generateQuiz = async (req, res) => {
+  const { topicId } = req.body;
 
   try {
-    const quiz = await Quiz.create({ topicId, questions });
-    res.status(201).json(quiz);
+    // Check if quiz already exists
+    const existing = await Quiz.findOne({ topicId });
+    if (existing) {
+      return res.json(existing);
+    }
+
+    const topic = await Topic.findById(topicId);
+    if (!topic) {
+      return res.status(404).json({ message: "Topic not found" });
+    }
+
+    // Generate using Gemini
+    const questions = await generateQuizQuestions(topic.title);
+
+    const quiz = await Quiz.create({
+      topicId,
+      questions
+    });
+
+    res.json(quiz);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err.message);
+    res.status(500).json({ message: "Failed to generate quiz" });
   }
 };
+
 
 // LEARNER: Get quiz
 exports.getQuiz = async (req, res) => {

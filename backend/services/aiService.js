@@ -41,3 +41,45 @@ exports.generateContentByStyle = async (topic, style) => {
     throw new Error("Learning content generation failed. Please try again later.");
   }
 };
+
+
+exports.generateQuizQuestions = async (topic) => {
+  const prompt = `
+Generate 5 multiple-choice questions for the topic "${topic}".
+
+Rules:
+- Each question must have exactly 4 options
+- Only one option should be correct
+- Return response strictly in JSON format like below
+
+{
+  "questions": [
+    {
+      "question": "Question text",
+      "options": ["A", "B", "C", "D"],
+      "correctAnswer": 0
+    }
+  ]
+}
+`;
+
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash"
+    });
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // IMPORTANT: Parse JSON safely
+    const jsonStart = text.indexOf("{");
+    const jsonEnd = text.lastIndexOf("}") + 1;
+    const jsonString = text.slice(jsonStart, jsonEnd);
+
+    return JSON.parse(jsonString).questions;
+  } catch (err) {
+    console.error("QUIZ GEN ERROR:", err.message);
+    throw new Error("Quiz generation failed");
+  }
+};
